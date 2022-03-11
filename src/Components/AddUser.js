@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import Card from './Card'
 import Button from '../UI/Button'
 import classes from './AddUser.module.css'
@@ -7,21 +7,29 @@ import Wrapper from './Helpers/Wrapper';
 
 const AddUser = (props) =>{
     
-    const [enteredUsername, setEnteredUsername] = useState('');
-    const [enteredAge, setenteredAge] = useState('');
+    // const [enteredUsername, setEnteredUsername] = useState('');
+    // const [enteredAge, setenteredAge] = useState('');
     const [error, setError] = useState();
 
-    const usernameOnChangeHandler = event =>{
-        setEnteredUsername(event.target.value);
+    const nameInputRef = useRef();
+    const ageInputRef = useRef();
 
-    };
-    const ageOnChangeHandler = event =>{
-        setenteredAge(event.target.value);
-    };
+    // This uses states to get the value
+    // const usernameOnChangeHandler = event =>{
+    //     setEnteredUsername(event.target.value);
+
+    // };
+    // const ageOnChangeHandler = event =>{
+    //     setenteredAge(event.target.value);
+    // };
 
     const addUserHandler = (event) =>{
         event.preventDefault();
-        if(enteredUsername.trim().length === 0 || enteredAge.trim().length === 0) {
+
+        const enteredNameFromRef = nameInputRef.current.value;
+        const enteredAgeFromRef = ageInputRef.current.value;
+
+        if(enteredNameFromRef.trim().length === 0 || enteredAgeFromRef.trim().length === 0) {
             setError({
                 title: 'Invalid input', 
                 message: 'Enter a valid name and age'
@@ -29,16 +37,22 @@ const AddUser = (props) =>{
             return;
         }
 
-        if(enteredAge < 1) {
+        if(enteredAgeFromRef < 1) {
                 setError({
                     title: 'Invalid input', 
                     message: 'Enter age greater than 0'
                 });
             return;
         }
-        props.onAddUser(enteredUsername, enteredAge);
-        setEnteredUsername('');
-        setenteredAge('');
+        props.onAddUser(enteredNameFromRef, enteredAgeFromRef);
+
+        //using Ref to reset input, it's fine in this case but we shouldn't update DOM this way in most cases
+        nameInputRef.current.value = '';
+        ageInputRef.current.value = '';
+
+        // using state to reset the input value
+        // setEnteredUsername('');
+        // setenteredAge('');
     };
     const errorHandler = () => {
         setError(null);
@@ -50,9 +64,24 @@ const AddUser = (props) =>{
         <Card className={classes.input}>
         <form onSubmit={addUserHandler}> 
             <label htmlFor='username'>Username</label>
-            <input type='text' name='username' value={enteredUsername} onChange={usernameOnChangeHandler}></input>
+            <input 
+                type='text' 
+                name='username' 
+                // value={enteredUsername} 
+                // onChange={usernameOnChangeHandler}
+                ref={nameInputRef}
+                >
+            </input>
             <label htmlFor='age'>Age</label>
-            <input type='number' name='age' value={enteredAge} onChange={ageOnChangeHandler}></input>
+
+            <input 
+                type='number' 
+                name='age' 
+                // value={enteredAge} 
+                // onChange={ageOnChangeHandler}
+                ref={ageInputRef}
+                >
+            </input>
             <Button type='submit'>Add user</Button>
         </form>
         </Card>
